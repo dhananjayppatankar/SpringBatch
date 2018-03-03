@@ -11,19 +11,23 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
 public class TempReader implements ItemReader<List<String>> {
-	int count=0;
+	int count = 0;
 	List<String> list = new ArrayList<>();
-	@Override
-	public List<String> read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-	
-	
-	BufferedReader bf = new BufferedReader(new FileReader("sample.txt"));
-	
-			list.add(bf.readLine());
-			System.out.println(list);
-			return list;
-		
 
+	@Override
+	public List<String> read()
+			throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+		count++;
+		BufferedReader bf = new BufferedReader(new FileReader("sample.txt"));
+		String line;
+		while((line= bf.readLine())!= null && count==1) {
+		
+		list.add(line);
+
+		System.out.println(list);
+		return list;
+}
+return null;
 	}
 
 }

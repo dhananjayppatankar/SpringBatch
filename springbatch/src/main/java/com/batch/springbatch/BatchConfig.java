@@ -38,7 +38,7 @@ public class BatchConfig {
 	@Bean
 	public Step step(){
 		return stepBuilderFactory.get("step")
-				.<List<String>,List<String>>chunk(1) //important to be one in this case to commit after every line read
+				.<List<String>,List<String>>chunk(2) //important to be one in this case to commit after every line read
 				.reader(reader())
 				.processor(processor())
 				.writer(writer())
