@@ -1,4 +1,4 @@
-package com.batch.springbatch;
+/*package com.batch.springbatch;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,3 +14,4 @@ public class SpringbatchApplicationTests {
 	}
 
 }
+*/

@@ -1,19 +1,23 @@
 package com.batch.springbatch;
 
-import java.util.List;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
+import org.springframework.batch.item.file.transform.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
+import com.batch.model.Customer;
 import com.batch.steps.TempProcessor;
-import com.batch.steps.TempReader;
 import com.batch.steps.TempWriter;
 
 @Configuration
@@ -22,39 +26,65 @@ import com.batch.steps.TempWriter;
 public class BatchConfig {
 
 	@Autowired
-	private JobBuilderFactory jobs;
+	private  JobBuilderFactory jobs;
 
 	@Autowired
-	private StepBuilderFactory stepBuilderFactory;
+	private  StepBuilderFactory stepBuilderFactory;
 
 	// tag::jobstep[]
 	@Bean
-	public Job addNewPodcastJob(){
-		return jobs.get("addNewPodcastJob")
-				.start(step())
-				.build();
+	public Job customerjob(){
+		return jobs.get("customerjob")
+				.incrementer(new RunIdIncrementer())
+                .flow(step())
+                .end()
+                .build();
 	}
 
 	@Bean
 	public Step step(){
 		return stepBuilderFactory.get("step")
-				.<List<String>,List<String>>chunk(2) //important to be one in this case to commit after every line read
+				.<Customer,Customer>chunk(2) //important to be one in this case to commit after every line read
 				.reader(reader())
 				.processor(processor())
 				.writer(writer())
 				.build();
 	}
 
-	@Bean
+	/*@Bean
 	public TempReader reader(){
-		/*FlatFileItemReader<SuggestedPodcast> reader = new FlatFileItemReader<SuggestedPodcast>();
-		reader.setLinesToSkip(1);//first line is title definition
-		reader.setResource(new ClassPathResource("suggested-podcasts.txt"));
-		reader.setLineMapper(lineMapper());*/
+		FlatFileItemReader<Customer> reader = new FlatFileItemReader<Customer>();
+		reader.setResource(new ClassPathResource("sample.txt"));
+		reader.setLineMapper(lineMapper());
 		return new TempReader();
-	}
+	}*/
 
+	@Bean
+	public FlatFileItemReader<Customer> reader(){
+		FlatFileItemReader<Customer> reader = new FlatFileItemReader<Customer>();
+		reader.setResource(new FileSystemResource("resources/sample.txt"));
+		reader.setLineMapper(new DefaultLineMapper<Customer>() {{
+		setLineTokenizer(new FixedLengthTokenizer(){{
+			setNames(new String[] {"id","name","role"});
+			setColumns(new Range[] {new Range(1,1), new Range(1,10), new Range(11,22)});
+			setStrict(false);
+		}});
+		setFieldSetMapper(new BeanWrapperFieldSetMapper<Customer>() {{
+			setTargetType(Customer.class);
+		}});
+		}});
+		return reader();
+		
+	}
 	
+	
+	
+	
+	/*@Bean
+	public TempReader reader() {
+		
+		return new TempReader();
+	}*/
 
 	
 
@@ -65,7 +95,7 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemWriter<? super List<String>> writer() {
+    public TempWriter writer() {
     	return new TempWriter();
     }
 

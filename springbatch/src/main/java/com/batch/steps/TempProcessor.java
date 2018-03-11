@@ -1,16 +1,17 @@
 package com.batch.steps;
 
-import java.util.List;
-
 import org.springframework.batch.item.ItemProcessor;
 
-public class TempProcessor implements ItemProcessor<List<String>, List<String>> {
+import com.batch.model.Customer;
+
+public class TempProcessor implements ItemProcessor<Customer,Customer> {
 
 	@Override
-	public List<String> process(List<String> arg0) throws Exception {
+	public Customer process(Customer arg0) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return arg0;
 	}
 
+	
 
 }
